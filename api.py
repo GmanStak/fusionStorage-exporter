@@ -13,6 +13,7 @@ class FusionStorage(object):
         self.session.headers = {"Content-type": "application/json"}
         self.session.verify = False
     def login(self):
+        global Token
         url = f"https://{self.host}:{self.port}/api/v2/aa/sessions"
         date = {"username":self.username,"password":self.password}
         try:
@@ -88,4 +89,6 @@ class FusionStorage(object):
                             "ObjectCount":accountStatistic.get('data').get('ObjectCount')})
         return result
     def logout(self):
+        url = f"https://{self.host}:{self.port}/api/v2/aa/sessions" + Token
+        self.session.delete(url)
         self.session.close()

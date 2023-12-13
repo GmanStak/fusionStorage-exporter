@@ -1,17 +1,39 @@
-import requests
+import requests,json
 from requests import Session
 requests.packages.urllib3.disable_warnings()
+
+def token2json(token):
+    with open("token.json","w") as f:
+        json.dump(token,f)
+
+def json2token():
+    with open("token.json","r") as f:
+        token = json.load(f)
+        return token
 
 class FusionStorage(object):
     def __init__(self, host, port, username, password):
         self.host = host
         self.port = port
-        self.password = password
         self.username = username
         self.password = password
         self.session = Session()
         self.session.headers = {"Content-type": "application/json"}
         self.session.verify = False
+
+    def testToken(self):
+        try:
+            token = json2token()
+            self.session.headers.update(token)
+            url = f"https://{self.host}:{self.port}/api/v2/aa/current_sessions"
+            response = self.session.get(url)
+            data = response.json()
+            if data['data']:
+                return True
+            else:
+                return False
+        except:
+            return False
     def login(self):
         global Token
         url = f"https://{self.host}:{self.port}/api/v2/aa/sessions"
@@ -20,6 +42,8 @@ class FusionStorage(object):
             response = self.session.post(url, json=date)
             Token = response.json()["data"]["x_auth_token"]
             self.session.headers.update({"X-Auth-Token":Token,"Content-type": "application/json","Accept-Language":"zh"})
+            js_token = {"X-Auth-Token":Token}
+            token2json(js_token)
             return True
         except:
             return False
@@ -89,6 +113,9 @@ class FusionStorage(object):
                             "ObjectCount":accountStatistic.get('data').get('ObjectCount')})
         return result
     def logout(self):
+        token = self.session.headers.get("X-Auth-Token")
         url = f"https://{self.host}:{self.port}/api/v2/aa/sessions" + Token
         self.session.delete(url)
+        session_url = f"https://{self.host}:{self.port}/api/v2/aa/sessions"
+        self.session.delete(session_url)
         self.session.close()

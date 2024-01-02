@@ -114,7 +114,7 @@ class FusionStorage(object):
         return result
     def logout(self):
         token = self.session.headers.get("X-Auth-Token")
-        url = f"https://{self.host}:{self.port}/api/v2/aa/sessions" + Token
+        url = f"https://{self.host}:{self.port}/api/v2/aa/sessions" + token
         self.session.delete(url)
         session_url = f"https://{self.host}:{self.port}/api/v2/aa/sessions"
         self.session.delete(session_url)

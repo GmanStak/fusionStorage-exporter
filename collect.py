@@ -62,21 +62,24 @@ def api2metrics():
         hw_nodepool_status.labels(id=poolId,name=poolName).set(poolStatus)
         hw_nodepool_total_hdd_cap.labels(id=poolId,name=poolName).set(totalCapacity)
         hw_nodepool_used_hdd_cap.labels(id=poolId,name=poolName).set(usedCapacity)
-
+    account = {"accountId":"","quotaCapacity":"","SpaceSize":"","Quota":"","BucketCount":"","ObjectCount":""}
     account_data = Fusion.get_account_info(account_name)
-    for info in data:
-        accountId = info['accountId']
-        quotaCapacity = info['quotaCapacity']
-        SpaceSize = info['SpaceSize']
-        Quota = info['Quota']
-        BucketCount = info['BucketCount']
-        ObjectCount = info['ObjectCount']
-        hw_account_id.labels(id=accountId).set(1)
-        hw_account_quotaCapacity.labels(id=accountId).set(quotaCapacity)
-        hw_account_SpaceSize.labels(id=accountId).set(SpaceSize)
-        hw_account_Quota.labels(id=accountId).set(Quota)
-        hw_account_BucketCount.labels(id=accountId).set(BucketCount)
-        hw_account_ObjectCount.labels(id=accountId).set(ObjectCount)
+    for info in account_data:
+        account["accountId"] = info['accountId']
+        account["quotaCapacity"] = info['quotaCapacity']
+        account["SpaceSize"] = info['SpaceSize']
+        account["Quota"] = info['Quota']
+        account["BucketCount"] = info['BucketCount']
+        account["ObjectCount"] = info['ObjectCount']
+        for key, value in account.items():
+            if value is None:
+                account[key] = 0
+        hw_account_id.labels(id=account["accountId"]).set(1)
+        hw_account_quotaCapacity.labels(id=account["accountId"]).set(account["quotaCapacity"])
+        hw_account_SpaceSize.labels(id=account["accountId"]).set(account["SpaceSize"])
+        hw_account_Quota.labels(id=account["accountId"]).set(account["Quota"])
+        hw_account_BucketCount.labels(id=account["accountId"]).set(account["BucketCount"])
+        hw_account_ObjectCount.labels(id=account["accountId"]).set(account["ObjectCount"])
 
     bandwith_data = Fusion.get_cluster_performance()
     for bandwith in bandwith_data['data']:
